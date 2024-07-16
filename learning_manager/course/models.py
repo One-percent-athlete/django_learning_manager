@@ -70,3 +70,18 @@ class Comment(models.Model):
 
     def __str__(self):
         return self.title
+    
+class Quiz(models.Model):
+    lesson = lesson = models.ForeignKey(Lesson, related_name='quizzes', on_delete=models.CASCADE)
+    question = models.CharField(max_length=200, null=True)
+    answer = models.CharField(max_length=200, null=True)
+    op1 = models.CharField(max_length=200, null=True)
+    op2 = models.CharField(max_length=200, null=True)
+    op3 = models.CharField(max_length=200, null=True)
+    op4 = models.CharField(max_length=200, null=True)
+
+    class Meta:
+        verbose_name_plural = 'Quizzes'
+    
+    def __str__(self):
+        return self.question

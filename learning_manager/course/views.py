@@ -3,8 +3,16 @@ from django.shortcuts import render
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
 
-from .serializers import CourseListSerializer, CourseDetailSerializer, LessonListSerializer, CommentSerializer, CategorySerializer
+from .serializers import CourseListSerializer, CourseDetailSerializer, LessonListSerializer, CommentSerializer, CategorySerializer, QuizSerializer
 from .models import Course, Lesson, Comment, Category
+
+@api_view(['GET'])
+def get_quiz(request, course_slug, lesson_slug):
+    lesson = Lesson.objects.get(slug=lesson_slug)
+    quiz = lesson.quizzes.first()
+    serializer = QuizSerializer(quiz)
+    return Response(serializer.data)
+
 
 @api_view(['GET'])
 @authentication_classes([])
@@ -46,6 +54,7 @@ def get_course(request, slug):
         course_data = course_serializer.data
     else:
         course_data = []
+        
     data = {
         'course': course_data,
         'lessons': lesson_serializer.data
