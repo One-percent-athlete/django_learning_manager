@@ -43,10 +43,12 @@ class Lesson(models.Model):
 
     ARTICLE = 'article'
     QUIZ = 'quiz'
+    VIDEO = 'video'
 
     LESSON_TYPE = (
         (ARTICLE, 'Article'),
-        (QUIZ, 'Quiz')
+        (QUIZ, 'Quiz'),
+        (VIDEO, 'Video')
     )
 
     course = models.ForeignKey(Course, related_name='lessons', on_delete=models.CASCADE)
@@ -56,6 +58,7 @@ class Lesson(models.Model):
     long_description = models.TextField(blank=True, null=True)
     lesson_status = models.CharField(max_length=20, choices=LESSON_STATUS, default=DRAFT)
     lesson_type = models.CharField(max_length=20, choices=LESSON_TYPE, default=ARTICLE)
+    video_id = models.CharField(max_length=20, blank=True, null=True)
 
     def __str__(self):
         return self.title
