@@ -4,6 +4,7 @@ from course import views
 urlpatterns = [
     path('', views.get_courses),
     path('get_categories/', views.get_categories),
+    path('get_author_courses/<int:user_id>/', views.get_author_courses),
     path('homepage_courses/', views.homepage_courses),
     path('<slug:slug>/', views.get_course),
     path('<slug:course_slug>/<slug:lesson_slug>/', views.add_comment),

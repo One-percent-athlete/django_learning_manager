@@ -20,6 +20,7 @@ class Course(models.Model):
     slug = models.SlugField()
     short_description = models.TextField(max_length=100, blank=True, null=True)
     long_description = models.TextField(blank=True, null=True)
+    created_by = models.ForeignKey(User, related_name='courses', on_delete=models.CASCADE , null=True, blank=True)
     created_at = models.DateField(auto_now_add=True)
     image = models.ImageField(upload_to='uploads', blank=True, null=True)
 
