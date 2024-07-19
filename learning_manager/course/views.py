@@ -1,5 +1,5 @@
 from django.shortcuts import render
-
+from django.utils.text import slugify
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
 
@@ -63,6 +63,21 @@ def get_course(request, slug):
 
     return Response(data) 
 
+@api_view(['POST'])
+def create_course(request):
+    course = Course.objects.create(
+        title=request.data.get('title'),
+        slug=slugify(request.data.get('title')),
+        short_description=request.data.get('short_description'),
+        long_description=request.data.get('long_description'),
+        created_by=request.user
+    )
+
+    for id in request.data.get('categories'):
+        course.categories.add(id)
+
+    course.save()
+    return Response({'yo':'yo'})
 
 @api_view(['GET'])
 def get_comments(request, course_slug, lesson_slug):
