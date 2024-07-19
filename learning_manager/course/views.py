@@ -1,4 +1,5 @@
 from django.shortcuts import render
+from random import randint
 from django.utils.text import slugify
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
@@ -27,7 +28,7 @@ def get_categories(request):
 @authentication_classes([])
 @permission_classes([])
 def homepage_courses(request):
-    courses = Course.objects.all().order_by('-created_at')[0:4]
+    courses = Course.objects.filter(status=Course.PUBLISHED).order_by('-created_at')[0:4]
     serializer = CourseListSerializer(courses, many=True)
     return Response(serializer.data)
 
@@ -35,7 +36,7 @@ def homepage_courses(request):
 @authentication_classes([])
 @permission_classes([])
 def get_courses(request):
-    courses = Course.objects.all().order_by('-created_at')
+    courses = Course.objects.filter(status=Course.PUBLISHED).order_by('-created_at')
 
     category_id = request.GET.get('category_id', '')
     if category_id:
@@ -47,7 +48,7 @@ def get_courses(request):
 # @authentication_classes([])
 # @permission_classes([])
 def get_course(request, slug):
-    course = Course.objects.get(slug=slug)
+    course = Course.objects.filter(status=Course.PUBLISHED).get(slug=slug)
     course_serializer = CourseDetailSerializer(course)
     lesson_serializer =LessonListSerializer(course.lessons.all(), many=True)
 
@@ -70,6 +71,7 @@ def create_course(request):
         slug=slugify(request.data.get('title')),
         short_description=request.data.get('short_description'),
         long_description=request.data.get('long_description'),
+        status=request.data.get('status'),
         created_by=request.user
     )
 
@@ -77,7 +79,18 @@ def create_course(request):
         course.categories.add(id)
 
     course.save()
-    return Response({'yo':'yo'})
+
+    for lesson in request.data.get('lessons'):
+        tmp_lesson = Lesson.objects.create(
+            course=course,
+            title=lesson.get('title'),
+            slug='%s-%s' % (slugify(lesson.get('title')), randint(1000, 10000)),
+            short_description=lesson.get('short_description'),
+            long_description=lesson.get('long_description'),
+            lesson_status=Lesson.DRAFT,
+        )
+
+    return Response({'course_id': course.id})
 
 @api_view(['GET'])
 def get_comments(request, course_slug, lesson_slug):
@@ -106,7 +119,7 @@ def add_comment(request, course_slug, lesson_slug):
 @api_view(['GET'])
 def get_author_courses(request, user_id):
     user = User.objects.get(pk=user_id)
-    courses = user.courses.all()
+    courses = user.courses.filter(status=Course.PUBLISHED)
 
     user_serializer = UserSerializer(user, many=False)
     courses_serializer = CourseListSerializer(courses, many=True)

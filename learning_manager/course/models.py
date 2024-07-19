@@ -15,6 +15,16 @@ class Category(models.Model):
         return self.title
 
 class Course(models.Model):
+
+    DRAFT = 'draft'
+    IN_REVIEW = 'in_review'
+    PUBLISHED = 'published'
+
+    COURSE_STATUS = (
+        (DRAFT, 'Draft'),
+        (IN_REVIEW, 'In review'),
+        (PUBLISHED, 'Published')
+    )
     categories = models.ManyToManyField(Category)
     title = models.CharField(max_length=255)
     slug = models.SlugField()
@@ -23,6 +33,7 @@ class Course(models.Model):
     created_by = models.ForeignKey(User, related_name='courses', on_delete=models.CASCADE , null=True, blank=True)
     created_at = models.DateField(auto_now_add=True)
     image = models.ImageField(upload_to='uploads', blank=True, null=True)
+    status = models.CharField(max_length=25, choices=COURSE_STATUS, default=DRAFT)
 
     def __str__(self):
         return self.title
